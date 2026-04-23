@@ -5,20 +5,12 @@ namespace ComfileTech.ComfilePi.CP_IO19R
     /// <summary>
     /// Represents the CP-IO19R IO board connected to the ComfilePi.
     /// </summary>
-    public class CP_IO19R
+    public class CP_IO19R : System.IDisposable
     {
-        static CP_IO19R()
-        {
-            Instance = new CP_IO19R();
-        }
-
         /// <summary>
         /// The singleton instance of this class.
         /// </summary>
-        public static CP_IO19R Instance
-        {
-            get; private set;
-        }
+        public static CP_IO19R Instance { get; } = new CP_IO19R();
 
         private CP_IO19R()
         {
@@ -58,6 +50,25 @@ namespace ComfileTech.ComfilePi.CP_IO19R
         public IReadOnlyList<DigitalOutput> Relays
         {
             get;
+        }
+
+        bool _disposed;
+
+        /// <summary>
+        /// Releases the GPIO resources used by the IO board.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            DigitalInput.DisposeGpioController();
+            DigitalOutput.DisposeGpioController();
+
+            _disposed = true;
+            System.GC.SuppressFinalize(this);
         }
     }
 }
